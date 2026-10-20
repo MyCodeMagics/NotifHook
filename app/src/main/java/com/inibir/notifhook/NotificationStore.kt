@@ -28,6 +28,11 @@ class NotificationStore private constructor(context: Context) :
 			rows
 		}
 
+	fun count(): Int =
+		readableDatabase.rawQuery("SELECT COUNT(*) FROM pending", null).use { cursor ->
+			if (cursor.moveToFirst()) cursor.getInt(0) else 0
+		}
+
 	fun delete(id: Long) {
 		writableDatabase.delete("pending", "id = ?", arrayOf(id.toString()))
 	}

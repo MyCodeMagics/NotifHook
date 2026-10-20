@@ -24,6 +24,13 @@ object Outbox {
 		run(context) { onDone(flush(it)) }
 	}
 
+	fun loadPending(context: Context, limit: Int, onResult: (Int, List<NotificationStore.Row>) -> Unit) {
+		run(context) {
+			val store = NotificationStore.get(it)
+			onResult(store.count(), store.oldest(limit))
+		}
+	}
+
 	private fun run(context: Context, block: (Context) -> Unit) {
 		val appContext = context.applicationContext
 		executor.execute { block(appContext) }
