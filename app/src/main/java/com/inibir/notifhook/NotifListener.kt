@@ -15,7 +15,8 @@ class NotifListener : NotificationListenerService() {
 
 		val config = HookConfig(applicationContext)
 		if (config.url.isEmpty()) return
-		if (!PackageFilter.accepts(config.packagesText, sbn.packageName)) return
+		val isOwn = sbn.packageName == packageName
+		if (!isOwn && !PackageFilter.accepts(config.packagesText, sbn.packageName)) return
 
 		Outbox.enqueue(applicationContext, NotificationPayload.from(sbn))
 	}

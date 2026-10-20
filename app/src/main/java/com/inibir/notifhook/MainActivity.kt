@@ -1,7 +1,10 @@
 package com.inibir.notifhook
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
@@ -70,6 +73,15 @@ class MainActivity : Activity() {
 			}
 		}
 
+		val versionLabel = TextView(this).apply {
+			text = "Version ${packageManager.getPackageInfo(packageName, 0).versionName}"
+		}
+
+		val testButton = Button(this).apply {
+			text = "Enviar notificacion de prueba"
+			setOnClickListener { sendTest() }
+		}
+
 		pendingLabel = TextView(this).apply {
 			textSize = 18f
 			setPadding(0, 32, 0, 0)
@@ -83,10 +95,12 @@ class MainActivity : Activity() {
 		return LinearLayout(this).apply {
 			orientation = LinearLayout.VERTICAL
 			setPadding(48, 48, 48, 24)
+			addView(versionLabel)
 			addView(urlInput)
 			addView(packagesInput)
 			addView(saveButton)
 			addView(accessButton)
+			addView(testButton)
 			addView(pendingLabel)
 			addView(resendButton)
 		}
@@ -102,6 +116,22 @@ class MainActivity : Activity() {
 		}
 	}
 
+	private fun sendTest() {
+		val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+			checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+		if (needsPermission) {
+			requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_NOTIFICATIONS)
+		} else {
+			TestNotifier.send(this)
+		}
+	}
+
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+		val granted = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+		if (requestCode == REQUEST_NOTIFICATIONS && granted) TestNotifier.send(this)
+	}
+
 	private fun refreshPending() {
 		Outbox.loadPending(applicationContext, PENDING_LIMIT) { total, rows ->
 			runOnUiThread {
@@ -114,5 +144,6 @@ class MainActivity : Activity() {
 
 	private companion object {
 		const val PENDING_LIMIT = 200
+		const val REQUEST_NOTIFICATIONS = 1
 	}
 }
