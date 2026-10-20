@@ -11,15 +11,28 @@ android {
 		applicationId = "com.inibir.notifhook"
 		minSdk = 26
 		targetSdk = 34
-		versionCode = 2
-		versionName = "1.1"
+		versionCode = 3
+		versionName = "1.2"
+	}
+
+	val keystorePath: String? = System.getenv("CM_KEYSTORE_PATH")
+
+	signingConfigs {
+		if (keystorePath != null) {
+			create("fixed") {
+				storeFile = file(keystorePath)
+				storePassword = System.getenv("CM_KEYSTORE_PASSWORD")
+				keyAlias = System.getenv("CM_KEY_ALIAS")
+				keyPassword = System.getenv("CM_KEY_PASSWORD")
+			}
+		}
 	}
 
 	buildTypes {
 		release {
 			isMinifyEnabled = true
 			isShrinkResources = true
-			signingConfig = signingConfigs.getByName("debug")
+			signingConfig = signingConfigs.getByName(if (keystorePath != null) "fixed" else "debug")
 		}
 	}
 
