@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
-import android.view.Gravity
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -49,21 +48,17 @@ class MainActivity : Activity() {
 			setText(config.url)
 		}
 
-		val packagesInput = EditText(this).apply {
-			hint = "Un paquete por linea (vacio = todas)\ncom.whatsapp"
-			inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-			minLines = 4
-			gravity = Gravity.TOP
-			setText(config.packagesText)
-		}
-
 		val saveButton = Button(this).apply {
 			text = "Guardar"
 			setOnClickListener {
 				config.url = urlInput.text.toString()
-				config.packagesText = packagesInput.text.toString()
 				Toast.makeText(this@MainActivity, "Guardado", Toast.LENGTH_SHORT).show()
 			}
+		}
+
+		val appsButton = Button(this).apply {
+			text = "Elegir aplicaciones"
+			setOnClickListener { startActivity(Intent(this@MainActivity, AppsActivity::class.java)) }
 		}
 
 		val accessButton = Button(this).apply {
@@ -97,8 +92,8 @@ class MainActivity : Activity() {
 			setPadding(48, 48, 48, 24)
 			addView(versionLabel)
 			addView(urlInput)
-			addView(packagesInput)
 			addView(saveButton)
+			addView(appsButton)
 			addView(accessButton)
 			addView(testButton)
 			addView(pendingLabel)

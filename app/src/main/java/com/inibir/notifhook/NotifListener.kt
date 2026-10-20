@@ -7,16 +7,20 @@ import android.service.notification.StatusBarNotification
 class NotifListener : NotificationListenerService() {
 
 	override fun onListenerConnected() {
+		val registry = AppRegistry(applicationContext)
+		activeNotifications?.forEach { registry.register(it.packageName) }
 		Outbox.sync(applicationContext)
 	}
 
 	override fun onNotificationPosted(sbn: StatusBarNotification) {
-		if (sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+		val registry = AppRegistry(applicationContext)
+		registry.register(sbn.packageName)
 
-		val config = HookConfig(applicationContext)
-		if (config.url.isEmpty()) return
+		if (sbn.notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+		if (HookConfig(applicationContext).url.isEmpty()) return
+
 		val isOwn = sbn.packageName == packageName
-		if (!isOwn && !PackageFilter.accepts(config.packagesText, sbn.packageName)) return
+		if (!isOwn && !registry.isEnabled(sbn.packageName)) return
 
 		Outbox.enqueue(applicationContext, NotificationPayload.from(sbn))
 	}

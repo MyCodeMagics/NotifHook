@@ -11,8 +11,8 @@ android {
 		applicationId = "com.inibir.notifhook"
 		minSdk = 26
 		targetSdk = 34
-		versionCode = 3
-		versionName = "1.2"
+		versionCode = 4
+		versionName = "1.3"
 	}
 
 	val keystorePath: String? = System.getenv("CM_KEYSTORE_PATH")
