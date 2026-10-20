@@ -19,7 +19,7 @@ class AppsActivity : Activity() {
 		adapter = AppsAdapter(this, AppRegistry(this))
 
 		val info = TextView(this).apply {
-			text = "Apps que han mostrado notificaciones. Marca las que quieres enviar."
+			text = "Apps instaladas y apps con notificaciones. Marca las que quieres enviar."
 		}
 
 		val search = EditText(this).apply {

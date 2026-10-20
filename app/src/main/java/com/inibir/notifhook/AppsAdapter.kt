@@ -18,7 +18,8 @@ class AppsAdapter(
 	private var query = ""
 
 	fun reload() {
-		all = registry.seenPackages()
+		all = (registry.seenPackages() + InstalledApps.launchable(context))
+			.distinct()
 			.filter { it != context.packageName }
 			.map { Entry(it, AppLabel.of(context, it)) }
 			.sortedWith(compareBy({ !registry.isEnabled(it.packageName) }, { it.label.lowercase() }))
