@@ -4,10 +4,12 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
+import android.view.Gravity
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -49,48 +51,6 @@ class MainActivity : Activity() {
 	private fun buildHeader(): LinearLayout {
 		val config = HookConfig(this)
 
-		val urlInput = EditText(this).apply {
-			hint = "https://tu-servidor/hook"
-			inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
-			setText(config.url)
-		}
-
-		val saveButton = Button(this).apply {
-			text = "Guardar"
-			setOnClickListener {
-				config.url = urlInput.text.toString()
-				Toast.makeText(this@MainActivity, "Guardado", Toast.LENGTH_SHORT).show()
-			}
-		}
-
-		val appsButton = Button(this).apply {
-			text = "Elegir aplicaciones"
-			setOnClickListener { startActivity(Intent(this@MainActivity, AppsActivity::class.java)) }
-		}
-
-		val accessButton = Button(this).apply {
-			text = "Acceso a notificaciones"
-			setOnClickListener {
-				startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-			}
-		}
-
-		val rebindButton = Button(this).apply {
-			text = "Reconectar servicio"
-			setOnClickListener {
-				ServiceRebinder.rebind(this@MainActivity)
-				Toast.makeText(this@MainActivity, "Revinculando servicio...", Toast.LENGTH_SHORT).show()
-				updateStatus()
-			}
-		}
-
-		batteryButton = Button(this).apply {
-			text = "Desactivar ahorro de bateria"
-			setOnClickListener {
-				BatteryOptimizer.requestIgnore(this@MainActivity)
-			}
-		}
-
 		val versionLabel = TextView(this).apply {
 			text = "Version ${packageManager.getPackageInfo(packageName, 0).versionName}"
 		}
@@ -103,18 +63,101 @@ class MainActivity : Activity() {
 			setPadding(0, 0, 0, 16)
 		}
 
+		val urlInput = EditText(this).apply {
+			hint = "https://tu-servidor/hook"
+			inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+			setText(config.url)
+		}
+
+		val saveButton = Button(this).apply {
+			text = "Guardar"
+			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_save, 0, 0, 0)
+			compoundDrawablePadding = 16
+			setOnClickListener {
+				config.url = urlInput.text.toString()
+				Toast.makeText(this@MainActivity, "Guardado", Toast.LENGTH_SHORT).show()
+			}
+		}
+
+		val urlRow = LinearLayout(this).apply {
+			orientation = LinearLayout.HORIZONTAL
+			gravity = Gravity.CENTER_VERTICAL
+			addView(urlInput, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+			val buttonParams = LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.WRAP_CONTENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT
+			).apply {
+				setMargins(16, 0, 0, 0)
+			}
+			addView(saveButton, buttonParams)
+		}
+
+		val configSectionLabel = TextView(this).apply {
+			text = "Configuración"
+			textSize = 18f
+			setTypeface(null, Typeface.BOLD)
+			setPadding(0, 32, 0, 16)
+		}
+
+		val appsButton = Button(this).apply {
+			text = "Elegir aplicaciones"
+			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_manage, 0, 0, 0)
+			compoundDrawablePadding = 16
+			setOnClickListener { startActivity(Intent(this@MainActivity, AppsActivity::class.java)) }
+		}
+
+		val accessButton = Button(this).apply {
+			text = "Acceso a notificaciones"
+			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_preferences, 0, 0, 0)
+			compoundDrawablePadding = 16
+			setOnClickListener {
+				startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+			}
+		}
+
+		val rebindButton = Button(this).apply {
+			text = "Reconectar servicio"
+			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_rotate, 0, 0, 0)
+			compoundDrawablePadding = 16
+			setOnClickListener {
+				ServiceRebinder.rebind(this@MainActivity)
+				Toast.makeText(this@MainActivity, "Revinculando servicio...", Toast.LENGTH_SHORT).show()
+				updateStatus()
+			}
+		}
+
+		batteryButton = Button(this).apply {
+			text = "Desactivar ahorro de bateria"
+			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_info_details, 0, 0, 0)
+			compoundDrawablePadding = 16
+			setOnClickListener {
+				BatteryOptimizer.requestIgnore(this@MainActivity)
+			}
+		}
+
+		val actionsSectionLabel = TextView(this).apply {
+			text = "Pruebas y Notificaciones"
+			textSize = 18f
+			setTypeface(null, Typeface.BOLD)
+			setPadding(0, 32, 0, 16)
+		}
+
 		val testButton = Button(this).apply {
 			text = "Enviar notificacion de prueba"
+			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_send, 0, 0, 0)
+			compoundDrawablePadding = 16
 			setOnClickListener { sendTest() }
 		}
 
 		pendingLabel = TextView(this).apply {
-			textSize = 18f
-			setPadding(0, 32, 0, 0)
+			textSize = 16f
+			setPadding(0, 16, 0, 8)
 		}
 
 		val resendButton = Button(this).apply {
 			text = "Reenviar pendientes"
+			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_upload, 0, 0, 0)
+			compoundDrawablePadding = 16
 			setOnClickListener { resend() }
 		}
 
@@ -124,12 +167,13 @@ class MainActivity : Activity() {
 			addView(versionLabel)
 			addView(serviceStatusLabel)
 			addView(batteryStatusLabel)
-			addView(urlInput)
-			addView(saveButton)
+			addView(urlRow)
+			addView(configSectionLabel)
 			addView(appsButton)
 			addView(accessButton)
 			addView(rebindButton)
 			addView(batteryButton)
+			addView(actionsSectionLabel)
 			addView(testButton)
 			addView(pendingLabel)
 			addView(resendButton)

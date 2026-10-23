@@ -1,4 +1,4 @@
-# Project Status - NotifHook v1.1.0
+# Project Status - NotifHook v1.2.0
 
 ## Arquitectura: Android Service Architecture (Service / Storage / Network)
 Servicio en segundo plano de Android para interceptar notificaciones del sistema y reenviarlas mediante webhooks HTTP con persistencia offline.
