@@ -19,6 +19,9 @@ import android.widget.Toast
 class MainActivity : Activity() {
 
 	private lateinit var pendingLabel: TextView
+	private lateinit var serviceStatusLabel: TextView
+	private lateinit var batteryStatusLabel: TextView
+	private lateinit var batteryButton: Button
 	private lateinit var adapter: ArrayAdapter<String>
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +39,10 @@ class MainActivity : Activity() {
 
 	override fun onResume() {
 		super.onResume()
+		if (ServiceRebinder.isAccessGranted(this) && !NotifListener.isConnected) {
+			ServiceRebinder.rebind(this)
+		}
+		updateStatus()
 		refreshPending()
 	}
 
@@ -68,8 +75,32 @@ class MainActivity : Activity() {
 			}
 		}
 
+		val rebindButton = Button(this).apply {
+			text = "Reconectar servicio"
+			setOnClickListener {
+				ServiceRebinder.rebind(this@MainActivity)
+				Toast.makeText(this@MainActivity, "Revinculando servicio...", Toast.LENGTH_SHORT).show()
+				updateStatus()
+			}
+		}
+
+		batteryButton = Button(this).apply {
+			text = "Desactivar ahorro de bateria"
+			setOnClickListener {
+				BatteryOptimizer.requestIgnore(this@MainActivity)
+			}
+		}
+
 		val versionLabel = TextView(this).apply {
 			text = "Version ${packageManager.getPackageInfo(packageName, 0).versionName}"
+		}
+
+		serviceStatusLabel = TextView(this).apply {
+			setPadding(0, 16, 0, 8)
+		}
+
+		batteryStatusLabel = TextView(this).apply {
+			setPadding(0, 0, 0, 16)
 		}
 
 		val testButton = Button(this).apply {
@@ -91,14 +122,36 @@ class MainActivity : Activity() {
 			orientation = LinearLayout.VERTICAL
 			setPadding(48, 48, 48, 24)
 			addView(versionLabel)
+			addView(serviceStatusLabel)
+			addView(batteryStatusLabel)
 			addView(urlInput)
 			addView(saveButton)
 			addView(appsButton)
 			addView(accessButton)
+			addView(rebindButton)
+			addView(batteryButton)
 			addView(testButton)
 			addView(pendingLabel)
 			addView(resendButton)
 		}
+	}
+
+	private fun updateStatus() {
+		val hasAccess = ServiceRebinder.isAccessGranted(this)
+		val isConnected = NotifListener.isConnected
+		serviceStatusLabel.text = when {
+			!hasAccess -> "Estado: Sin permiso de notificaciones"
+			isConnected -> "Estado: Servicio conectado y activo"
+			else -> "Estado: Servicio desconectado (Pulsa Reconectar)"
+		}
+
+		val ignoringBattery = BatteryOptimizer.isIgnoring(this)
+		batteryStatusLabel.text = if (ignoringBattery) {
+			"Bateria: Sin restricciones (No se apagara)"
+		} else {
+			"Bateria: Optimizada (Android puede apagar el servicio)"
+		}
+		batteryButton.isEnabled = !ignoringBattery
 	}
 
 	private fun resend() {
