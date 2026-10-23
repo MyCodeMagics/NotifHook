@@ -13,6 +13,7 @@ import android.view.Gravity
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
@@ -23,7 +24,7 @@ class MainActivity : Activity() {
 	private lateinit var pendingLabel: TextView
 	private lateinit var serviceStatusLabel: TextView
 	private lateinit var batteryStatusLabel: TextView
-	private lateinit var batteryButton: Button
+	private lateinit var batteryButton: ImageButton
 	private lateinit var adapter: ArrayAdapter<String>
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,10 +70,10 @@ class MainActivity : Activity() {
 			setText(config.url)
 		}
 
-		val saveButton = Button(this).apply {
-			text = "Guardar"
-			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_save, 0, 0, 0)
-			compoundDrawablePadding = 16
+		val saveButton = ImageButton(this).apply {
+			setImageResource(R.drawable.ic_save)
+			contentDescription = "Guardar"
+			setPadding(24, 24, 24, 24)
 			setOnClickListener {
 				config.url = urlInput.text.toString()
 				Toast.makeText(this@MainActivity, "Guardado", Toast.LENGTH_SHORT).show()
@@ -92,33 +93,39 @@ class MainActivity : Activity() {
 			addView(saveButton, buttonParams)
 		}
 
-		val configSectionLabel = TextView(this).apply {
-			text = "Configuración"
-			textSize = 18f
-			setTypeface(null, Typeface.BOLD)
-			setPadding(0, 32, 0, 16)
-		}
-
-		val appsButton = Button(this).apply {
-			text = "Elegir aplicaciones"
-			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_manage, 0, 0, 0)
-			compoundDrawablePadding = 16
+		val appsButton = ImageButton(this).apply {
+			setImageResource(R.drawable.ic_apps)
+			contentDescription = "Elegir aplicaciones"
+			setPadding(24, 24, 24, 24)
 			setOnClickListener { startActivity(Intent(this@MainActivity, AppsActivity::class.java)) }
 		}
 
-		val accessButton = Button(this).apply {
-			text = "Acceso a notificaciones"
-			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_preferences, 0, 0, 0)
-			compoundDrawablePadding = 16
+		val accessButton = ImageButton(this).apply {
+			setImageResource(R.drawable.ic_settings)
+			contentDescription = "Acceso a notificaciones"
+			setPadding(24, 24, 24, 24)
 			setOnClickListener {
 				startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
 			}
 		}
 
-		val rebindButton = Button(this).apply {
-			text = "Reconectar servicio"
-			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_rotate, 0, 0, 0)
-			compoundDrawablePadding = 16
+		batteryButton = ImageButton(this).apply {
+			setImageResource(R.drawable.ic_battery)
+			contentDescription = "Ahorro de bateria"
+			setPadding(24, 24, 24, 24)
+			setOnClickListener {
+				if (BatteryOptimizer.isIgnoring(this@MainActivity)) {
+					Toast.makeText(this@MainActivity, "Bateria ya sin restricciones", Toast.LENGTH_SHORT).show()
+				} else {
+					BatteryOptimizer.requestIgnore(this@MainActivity)
+				}
+			}
+		}
+
+		val rebindButton = ImageButton(this).apply {
+			setImageResource(R.drawable.ic_refresh)
+			contentDescription = "Reiniciar servicio"
+			setPadding(24, 24, 24, 24)
 			setOnClickListener {
 				ServiceRebinder.rebind(this@MainActivity)
 				Toast.makeText(this@MainActivity, "Revinculando servicio...", Toast.LENGTH_SHORT).show()
@@ -126,39 +133,43 @@ class MainActivity : Activity() {
 			}
 		}
 
-		batteryButton = Button(this).apply {
-			text = "Desactivar ahorro de bateria"
-			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_info_details, 0, 0, 0)
-			compoundDrawablePadding = 16
-			setOnClickListener {
-				BatteryOptimizer.requestIgnore(this@MainActivity)
+		val configRow = LinearLayout(this).apply {
+			orientation = LinearLayout.HORIZONTAL
+			val itemParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+				setMargins(8, 16, 8, 16)
 			}
-		}
-
-		val actionsSectionLabel = TextView(this).apply {
-			text = "Pruebas y Notificaciones"
-			textSize = 18f
-			setTypeface(null, Typeface.BOLD)
-			setPadding(0, 32, 0, 16)
+			addView(appsButton, itemParams)
+			addView(accessButton, LinearLayout.LayoutParams(itemParams))
+			addView(batteryButton, LinearLayout.LayoutParams(itemParams))
+			addView(rebindButton, LinearLayout.LayoutParams(itemParams))
 		}
 
 		val testButton = Button(this).apply {
-			text = "Enviar notificacion de prueba"
-			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_send, 0, 0, 0)
+			text = "test"
+			setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_send, 0, 0, 0)
 			compoundDrawablePadding = 16
 			setOnClickListener { sendTest() }
 		}
 
-		pendingLabel = TextView(this).apply {
-			textSize = 16f
-			setPadding(0, 16, 0, 8)
-		}
-
 		val resendButton = Button(this).apply {
-			text = "Reenviar pendientes"
-			setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_upload, 0, 0, 0)
+			text = "push"
+			setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_upload, 0, 0, 0)
 			compoundDrawablePadding = 16
 			setOnClickListener { resend() }
+		}
+
+		val actionsRow = LinearLayout(this).apply {
+			orientation = LinearLayout.HORIZONTAL
+			val actionParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+				setMargins(8, 0, 8, 0)
+			}
+			addView(testButton, actionParams)
+			addView(resendButton, LinearLayout.LayoutParams(actionParams))
+		}
+
+		pendingLabel = TextView(this).apply {
+			textSize = 16f
+			setPadding(8, 24, 8, 8)
 		}
 
 		return LinearLayout(this).apply {
@@ -168,15 +179,9 @@ class MainActivity : Activity() {
 			addView(serviceStatusLabel)
 			addView(batteryStatusLabel)
 			addView(urlRow)
-			addView(configSectionLabel)
-			addView(appsButton)
-			addView(accessButton)
-			addView(rebindButton)
-			addView(batteryButton)
-			addView(actionsSectionLabel)
-			addView(testButton)
+			addView(configRow)
 			addView(pendingLabel)
-			addView(resendButton)
+			addView(actionsRow)
 		}
 	}
 
@@ -195,7 +200,7 @@ class MainActivity : Activity() {
 		} else {
 			"Bateria: Optimizada (Android puede apagar el servicio)"
 		}
-		batteryButton.isEnabled = !ignoringBattery
+		batteryButton.alpha = if (ignoringBattery) 1.0f else 0.5f
 	}
 
 	private fun resend() {

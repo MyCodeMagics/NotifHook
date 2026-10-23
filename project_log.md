@@ -27,3 +27,15 @@
 	- Se coloco el campo de texto de URL y el boton Guardar en una fila horizontal `LinearLayout.HORIZONTAL` con icono de disquete (`android.R.drawable.ic_menu_save`).
 	- Se anadio la seccion "Configuración" agrupando `Elegir aplicaciones` (`ic_menu_manage`), `Acceso a notificaciones` (`ic_menu_preferences`), `Reconectar servicio` (`ic_menu_rotate`) y `Desactivar ahorro de bateria` (`ic_menu_info_details`).
 	- Se anadio la seccion inferior "Pruebas y Notificaciones" agrupando `Enviar notificacion de prueba` (`ic_menu_send`), el contador de pendientes y `Reenviar pendientes` (`ic_menu_upload`).
+
+### 📝 Registro: [v1.3.0] - Compactacion de interfaz en filas de iconos y botones test/push
+- **date-time**: 2026-10-23 04:44:00
+- **Problema**:
+	- Se requeria simplificar visualmente la interfaz de MainActivity usando unicamente iconos para guardar y configuracion, y distribuyendo las acciones en filas horizontales.
+- **Causa**:
+	- Los botones ocupaban demasiado espacio vertical al incluir etiquetas de texto extensas y estar apilados uno sobre otro.
+- **Solución**:
+	- Se crearon 7 vector drawables nativos en `res/drawable/` (`ic_save`, `ic_apps`, `ic_settings`, `ic_battery`, `ic_refresh`, `ic_send`, `ic_upload`).
+	- Se cambio el boton de Guardar a solo icono de disquete (`ImageButton`) al lado del campo de texto de URL.
+	- Se colocaron los botones de configuracion en una sola linea horizontal (Elegir app, Acceso engranaje, Bateria, Reiniciar servicio) como `ImageButton` con solo iconos.
+	- Se colocaron los botones de prueba y envio en una sola linea horizontal: `test` (icono + texto) y `push` (icono + texto).
