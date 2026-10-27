@@ -39,3 +39,28 @@
 	- Se cambio el boton de Guardar a solo icono de disquete (`ImageButton`) al lado del campo de texto de URL.
 	- Se colocaron los botones de configuracion en una sola linea horizontal (Elegir app, Acceso engranaje, Bateria, Reiniciar servicio) como `ImageButton` con solo iconos.
 	- Se colocaron los botones de prueba y envio en una sola linea horizontal: `test` (icono + texto) y `push` (icono + texto).
+
+### 📝 Registro: [v1.4.0] - Implementacion de Foreground Service y mecanismos keep-alive contra suspension del sistema
+- **date-time**: 2026-10-27 19:35:00
+- **Problema**:
+	- El sistema operativo Android suspende o mata el proceso en segundo plano de NotifHook con el tiempo, impidiendo la captura continua de notificaciones.
+- **Causa**:
+	- Android restringe procesos en segundo plano sin un servicio Foreground Service activo asociado, y requiere solicitudes explicitas de exencion de bateria y revinculacion persistente ante desconexiones o reinicio.
+- **Solución**:
+	- Se creo `KeepAliveForegroundService` con tipo `dataSync`, canal de baja prioridad e icono de notificacion dedicado (`ic_notification.xml`).
+	- Se anadieron los permisos `FOREGROUND_SERVICE` y `FOREGROUND_SERVICE_DATA_SYNC` en `AndroidManifest.xml`, junto con la declaracion del servicio.
+	- Se configuro `BootReceiver` para arrancar el `KeepAliveForegroundService` tras reinicio (`BOOT_COMPLETED`) o actualizacion del paquete.
+	- Se anadio en `MainActivity.onCreate` el arranque del foreground service, solicitud automatica de exencion de optimizacion de bateria si no esta concedida, y revinculacion del servicio.
+	- Se incorporo la llamada a `super.onListenerDisconnected()` en `NotifListener`.
+
+### 📝 Registro: [v1.5.0] - Boton de informacion top-right con checklist guiada y atajos a ajustes de Xiaomi
+- **date-time**: 2026-10-27 21:20:00
+- **Problema**:
+	- En capas como MIUI/HyperOS, permisos como Inicio Automático o Ahorro de batería sin restricciones no pueden alterarse silenciosamente por API y requieren navegacion manual en ajustes.
+- **Causa**:
+	- Restricciones de seguridad del fabricante impiden conceder permisos propietarios por código, requiriendo que el usuario conozca la ruta exacta y active los switches manualmente.
+- **Solución**:
+	- Se creo `ic_info.xml` e incorporo un boton de informacion top-right en `MainActivity`.
+	- Se creo `XiaomiHelper` para detectar dispositivos Xiaomi/Redmi/POCO y despachar intents especificos a `AutoStartManagementActivity` y `HiddenAppsConfigActivity`.
+	- Se creo `GuidePreferences` para persistir el estado de las configuraciones manuales.
+	- Se creo `KeepAliveGuideDialog`, mostrando cada requisito con su estado en tiempo real ([✓] Hecho / [!] Pendiente) y un boton que muestra un popup explicativo simple antes de abrir la pantalla exacta de configuracion.

@@ -30,6 +30,13 @@ class MainActivity : Activity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 
+		startForegroundService(Intent(this, KeepAliveForegroundService::class.java))
+		ServiceRebinder.rebind(this)
+
+		if (!BatteryOptimizer.isIgnoring(this)) {
+			BatteryOptimizer.requestIgnore(this)
+		}
+
 		adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, ArrayList<String>())
 
 		val list = ListView(this).apply {
@@ -54,6 +61,24 @@ class MainActivity : Activity() {
 
 		val versionLabel = TextView(this).apply {
 			text = "Version ${packageManager.getPackageInfo(packageName, 0).versionName}"
+		}
+
+		val infoButton = ImageButton(this).apply {
+			setImageResource(R.drawable.ic_info)
+			contentDescription = "Guia de segundo plano"
+			setPadding(16, 16, 16, 16)
+			setOnClickListener {
+				KeepAliveGuideDialog.show(this@MainActivity) {
+					updateStatus()
+				}
+			}
+		}
+
+		val topRow = LinearLayout(this).apply {
+			orientation = LinearLayout.HORIZONTAL
+			gravity = Gravity.CENTER_VERTICAL
+			addView(versionLabel, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+			addView(infoButton, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
 		}
 
 		serviceStatusLabel = TextView(this).apply {
@@ -175,7 +200,7 @@ class MainActivity : Activity() {
 		return LinearLayout(this).apply {
 			orientation = LinearLayout.VERTICAL
 			setPadding(48, 48, 48, 24)
-			addView(versionLabel)
+			addView(topRow)
 			addView(serviceStatusLabel)
 			addView(batteryStatusLabel)
 			addView(urlRow)

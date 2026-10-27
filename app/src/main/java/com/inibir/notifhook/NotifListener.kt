@@ -14,6 +14,7 @@ class NotifListener : NotificationListenerService() {
 	}
 
 	override fun onListenerDisconnected() {
+		super.onListenerDisconnected()
 		isConnected = false
 		ServiceRebinder.rebind(applicationContext)
 	}

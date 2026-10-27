@@ -1,4 +1,4 @@
-# Project Status - NotifHook v1.3.0
+# Project Status - NotifHook v1.5.0
 
 ## Arquitectura: Android Service Architecture (Service / Storage / Network)
 Servicio en segundo plano de Android para interceptar notificaciones del sistema y reenviarlas mediante webhooks HTTP con persistencia offline.
@@ -6,8 +6,12 @@ Servicio en segundo plano de Android para interceptar notificaciones del sistema
 ## Mapeo de Modulos y Responsabilidades
 ### `app/src/main/java/com/inibir/notifhook`
 - `NotifListener`: Servicio NotificationListenerService que intercepta notificaciones entrantes de apps autorizadas.
+- `KeepAliveForegroundService`: Servicio en primer plano persistente para evitar que el sistema operativo suspenda el proceso.
 - `ServiceRebinder`: Revinculacion forzada del NotificationListenerService y verificacion de permisos del sistema.
 - `BatteryOptimizer`: Verificacion y solicitud de exclusion de optimizaciones de bateria para evitar suspension del proceso.
+- `XiaomiHelper`: Deteccion del fabricante Xiaomi/HyperOS e invocacion de intents directos a pantallas de configuracion propietarias.
+- `GuidePreferences`: Persistencia local del estado de verificacion de los pasos guiados de configuracion en segundo plano.
+- `KeepAliveGuideDialog`: Dialogo interactivo con lista de comprobacion de permisos, instrucciones en popup y atajos directos a ajustes.
 - `BootReceiver`: Receptor de arranque del dispositivo y actualizacion del paquete para reactivar el listener y la sincronizacion.
 - `NotificationPayload::from(sbn: StatusBarNotification) -> JSONObject`: Extrae titulo, texto, paquete y timestamp de la notificacion.
 - `NotificationStore`: Persistencia local de notificaciones pendientes en almacenamiento local.

@@ -7,6 +7,8 @@
 	<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 	<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
 	<application
 		android:allowBackup="false"
@@ -40,6 +42,11 @@
 			android:name=".SyncJobService"
 			android:exported="false"
 			android:permission="android.permission.BIND_JOB_SERVICE" />
+
+		<service
+			android:name=".KeepAliveForegroundService"
+			android:exported="false"
+			android:foregroundServiceType="dataSync" />
 
 		<receiver
 			android:name=".BootReceiver"
